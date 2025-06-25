@@ -1,16 +1,21 @@
 
 body {
-  margin: 0;
   font-family: sans-serif;
-  background: #f4f4f4;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f4;
 }
-header {
-  padding: 1em;
-  text-align: center;
-  background-color: #003049;
+nav ul {
+  list-style: none;
+  display: flex;
+  justify-content: space-around;
+  background-color: #222;
+  padding: 0.5rem;
+}
+nav ul li a {
   color: white;
+  text-decoration: none;
 }
-#map {
-  width: 100vw;
-  height: 90vh;
+main {
+  padding: 2rem;
 }
