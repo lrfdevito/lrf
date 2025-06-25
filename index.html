@@ -1,12 +1,41 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>LRF Forecast</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <h1>LRF Forecast by De Vito</h1>
-  <p>Interactive map and prediction system will be loaded here.</p>
+  <header>
+    <h1>LRF by De Vito</h1>
+  </header>
+
+  <main>
+    <section class="controls">
+      <label for="species">Είδος ψαριού:</label>
+      <select id="species">
+        <option value="sargos">Σαργός</option>
+        <option value="melanouri">Μελανούρι</option>
+        <option value="loutsos">Λούτσος</option>
+      </select>
+
+      <label for="hour">Ώρα:</label>
+      <input type="range" id="hour" name="hour" min="0" max="23" step="1" />
+      <span id="hourValue">12:00</span>
+
+      <label for="bottom">Τύπος Βυθού:</label>
+      <select id="bottom">
+        <option value="rock">Βραχώδης</option>
+        <option value="sand">Αμμώδης</option>
+        <option value="mixed">Μικτός</option>
+      </select>
+    </section>
+
+    <div id="map" style="height: 500px;"></div>
+  </main>
+
+  <script src="script.js"></script>
 </body>
 </html>

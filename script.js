@@ -1,4 +1,5 @@
 
-document.getElementById('fishSelector').addEventListener('change', function(e) {
-  alert('Επιλέχθηκε: ' + e.target.value + ' (θα εμφανιστεί χάρτης και πρόγνωση)');
+document.getElementById("hour").addEventListener("input", function (e) {
+  const value = e.target.value;
+  document.getElementById("hourValue").textContent = value + ":00";
 });
