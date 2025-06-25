@@ -1,149 +1,21 @@
+
 <!DOCTYPE html>
-<html lang="el">
+<html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <title>LRF by De Vito – Πρόγνωση LRF Τήνος</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-  <style>
-    body{margin:0;font-family:sans-serif;color:#333;background:#f4f4f4}
-    header{background:#004080;color:#fff;padding:1rem;text-align:center}
-    .controls{display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center;padding:1rem;background:#e1e8f0}
-    select{padding:.5rem;font-size:1rem}
-    #map{height:60vh;width:100%}
-    .forecast{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem;padding:1rem}
-    .card{background:#fff;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.1);padding:1rem}
-    .card h3{margin-top:0;color:#004080}
-    .percent{font-size:2rem;font-weight:bold;color:#0066cc}
-    .details{font-size:.9rem;color:#555;line-height:1.4}
-    footer{text-align:center;padding:1rem;background:#004080;color:#fff}
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LRF by De Vito - Fishing Forecast Map</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 </head>
 <body>
-
-<header>
-  <h1>LRF by De Vito</h1>
-  <p>Πρόγνωση επιτυχίας ψαρέματος σε όλα τα παραθαλάσσια της Τήνου</p>
-</header>
-
-<div class="controls">
-  <label>Είδος:
-    <select id="species">
-      <option value="sargos">Σαργός</option>
-      <option value="melanouri">Μελανούρι</option>
-      <option value="loutsos">Λούτσος</option>
-    </select>
-  </label>
-  <label>Ημέρα:
-    <select id="day">
-      <option value="0">Σήμερα</option>
-      <option value="1">Αύριο</option>
-      <option value="2">Μεθαύριο</option>
-    </select>
-  </label>
-</div>
-
-<div id="map"></div>
-<section class="forecast" id="forecast-cards"></section>
-<footer>&copy; 2025 LRF by De Vito</footer>
-
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>
-  // Demo πρόβλεψη ανά είδος/μέρα
-  const DEMO = {
-    sargos: [80,70,75],
-    melanouri: [60,65,70],
-    loutsos: [75,60,80],
-    info: {
-      sargos: [
-        "Πρωινές ώρες, θερμοκρασία 20‑23°C, μικρό ρεύμα",
-        "Μέση φάση σελήνης, χαμηλή πίεση",
-        "Βραχώδης/αμμώδης βυθός, βάθος 5‑8μ"
-      ],
-      melanouri: [
-        "Βραχώδης πυθμένας, έντονη δραστηριότητα μετά από μελτέμι",
-        "Βραδινές ώρες, θερμοκρασία 19‑22°C",
-        "Ρευστά νερά, αλλαγή παλίρροιας"
-      ],
-      loutsos: [
-        "Καθαρά νερά πρωινές ώρες, θερμοκρασία 21‑24°C",
-        "Ώρες αυγής/σούρουπου, ήπιος άνεμος",
-        "Ξέρα, βάθος 3‑6μ"
-      ]
-    }
-  };
-
-  // GeoJSON demo (προσεχτικές παραθαλάσσιες περιοχές της Τήνου)
-  const coastGeoJSON = {
-    "type": "Feature",
-    "geometry": {
-      "type": "Polygon",
-      "coordinates": [[
-        [25.12,37.58],[25.18,37.58],
-        [25.18,37.62],[25.12,37.62],
-        [25.12,37.58]
-      ]]
-    }
-  };
-
-  // Ζώνες δραστηριότητας (πολυγωνικά)
-  const zones = {
-    sargos: [
-      {coords:[[37.601,25.135],[37.604,25.137],[37.602,25.142]],int:80},
-      {coords:[[37.596,25.145],[37.599,25.147],[37.597,25.151]],int:70}
-    ],
-    melanouri: [
-      {coords:[[37.593,25.147],[37.596,25.149],[37.594,25.153]],int:60}
-    ],
-    loutsos: [
-      {coords:[[37.611,25.162],[37.613,25.165],[37.610,25.168]],int:75}
-    ]
-  };
-
-  const map = L.map('map').setView([37.6,25.15],11);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-    attribution:'© OpenStreetMap contributors'
-  }).addTo(map);
-
-  L.geoJSON(coastGeoJSON,{color:'#0066cc',fill:false}).addTo(map);
-  let zoneLayer = L.layerGroup().addTo(map);
-
-  function renderForecast(){
-    const sp = document.getElementById('species').value;
-    const day = +document.getElementById('day').value;
-
-    zoneLayer.clearLayers();
-    zones[sp].forEach(z=>{
-      L.polygon(z.coords,{
-        color: z.int > 70 ? '#2ecc71' : (z.int > 50 ? '#f1c40f' : '#e74c3c'),
-        fillOpacity: 0.4
-      }).bindPopup(`
-        Πιθανότητα: ${z.int}%<br>
-        Ώρα αιχμής: 07–09πμ<br>
-        Βάθος: 5–8 μ<br>
-        Τύπος βυθού: βραχώδης
-      `).addTo(zoneLayer);
-    });
-
-    const container = document.getElementById('forecast-cards');
-    container.innerHTML = '';
-    ['sargos','melanouri','loutsos'].forEach(fish=>{
-      const pct = DEMO[fish][day];
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.innerHTML = `
-        <h3>${fish==='sargos'?'Σαργός':fish==='melanouri'?'Μελανούρι':'Λούτσος'}</h3>
-        <div class="percent">${pct}%</div>
-        <div class="details">${DEMO.info[fish][day]}</div>
-      `;
-      container.appendChild(card);
-    });
-  }
-
-  document.getElementById('species').onchange = renderForecast;
-  document.getElementById('day').onchange = renderForecast;
-  renderForecast();
-
-</script>
+  <header>
+    <h1>LRF by De Vito</h1>
+    <p>Πρόγνωση ψαρέματος - Σαργός, Μελανούρι, Λούτσος</p>
+  </header>
+  <div id="map"></div>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/@turf/turf/turf.min.js"></script>
+  <script src="main.js"></script>
 </body>
 </html>
