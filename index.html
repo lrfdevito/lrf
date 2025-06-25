@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+  <meta charset="UTF-8">
+  <title>LRF by De Vito – Φροντιστήρια Ψαρέματος</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+  <style>
+    body{margin:0;font-family:sans-serif;color:#333;background:#f4f4f4}
+    header{background:#004080;color:#fff;padding:1rem;text-align:center}
+    .controls{display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center;padding:1rem;background:#e1e8f0}
+    select{padding:.5rem;font-size:1rem}
+    #map{height:50vh;width:100%}
+    .forecast{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem;padding:1rem}
+    .card{background:#fff;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.1);padding:1rem}
+    .card h3{margin-top:0;color:#004080}
+    .percent{font-size:2rem;font-weight:bold;color:#0066cc}
+    .details{font-size:.9rem;color:#555;line-height:1.4}
+    footer{text-align:center;padding:1rem;background:#004080;color:#fff}
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>LRF by De Vito</h1>
+    <p>Πρόγνωση επιτυχίας ψαρέματος (Σαργός, Μελανούρι, Λούτσος)</p>
+  </header>
+
+  <div class="controls">
+    <label>
+      Είδος:
+      <select id="species">
+        <option value="sargos">Σαργός</option>
+        <option value="melanouri">Μελανούρι</option>
+        <option value="loutsos">Λούτσος</option>
+      </select>
+    </label>
+    <label>
+      Ημερομηνία:
+      <select id="day">
+        <option value="0">Σήμερα</option>
+        <option value="1">Αύριο</option>
+        <option value="2">Μεθαύριο</option>
+      </select>
+    </label>
+  </div>
+
+  <div id="map"></div>
+
+  <section class="forecast" id="forecast-cards">
+    <!-- οι κάρτες θα γεμίσουν από JS -->
+  </section>
+
+  <footer>
+    &copy; 2025 LRF by De Vito – Όλα τα δικαιώματα διατηρούνται
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    // In-memory demo δεδομένα (θα αντικατασταθούν από πραγματικό API)
+    const DEMO = {
+      sargos: [80, 65, 75],
+      melanouri: [50, 60, 70],
+      loutsos: [70, 55, 80],
+      info: {
+        sargos: [
+          "Πρωινές/απογευματινές ώρες, θερμοκρασία θάλασσας 20–23°C, μικρό ρεύμα",
+          "Μέση φάση σελήνης, πίεση 1014 hPa",
+          "Βυθός αμμώδης-βραχώδης έως 5μ"
+        ],
+        melanouri: [
+          "Βραχώδης πυθμένας, ισχυρά ρεύματα βοηθούν αναταραχή δολώματος",
+          "Νύχτα με φεγγάρι, θερμοκρασία 19–22°C",
+          "Μικρότερη ηλιοφάνεια, πίεση 1012 hPa"
+        ],
+        loutsos: [
+          "Καθαρά νερά, πρωινή ομίχλη, θερμοκρασία 21–24°C",
+          "Ώρες αυγής/σούρουπου, μικρή άνεμος",
+          "Ξέρα ρηχή, βάθη 3–8μ"
+        ]
+      },
+      zones: {
+        sargos: [
+          {lat:37.58,lon:25.15,int:80},
+          {lat:37.60,lon:25.17,int:65}
+        ],
+        melanouri: [
+          {lat:37.56,lon:25.13,int:50},
+          {lat:37.59,lon:25.19,int:60}
+        ],
+        loutsos: [
+          {lat:37.57,lon:25.14,int:70},
+          {lat:37.61,lon:25.16,int:55}
+        ]
+      }
+    };
+
+    // Leaflet map setup
+    const map = L.map('map').setView([37.598,25.154],11);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+      attribution:'© OpenStreetMap contributors'
+    }).addTo(map);
+
+    let zoneLayer = L.layerGroup().addTo(map);
+
+    function renderForecast() {
+      const sp = document.getElementById('species').value;
+      const day = parseInt(document.getElementById('day').value,10);
+      // Χάρτης: clear + draw circles
+      zoneLayer.clearLayers();
+      DEMO.zones[sp].forEach(z=>{
+        const c = L.circle([z.lat,z.lon],{
+          radius: z.int*30,
+          fillColor: z.int>70?'#2ecc71':(z.int>50?'#f1c40f':'#e74c3c'),
+          color:'#888',fillOpacity:0.4
+        }).bindPopup(`${z.int}% πιθανότητα`).addTo(zoneLayer);
+      });
+      // Forecast cards
+      const container = document.getElementById('forecast-cards');
+      container.innerHTML = '';
+      ['sargos','melanouri','loutsos'].forEach(fish=>{
+        const pct = DEMO[fish][day];
+        const card = document.createElement('div');
+        card.className='card';
+        card.innerHTML = `
+          <h3>${fish==='sargos'?'Σαργός':fish==='melanouri'?'Μελανούρι':'Λούτσος'}</h3>
+          <div class="percent">${pct}%</div>
+          <div class="details">${DEMO.info[fish][day]}</div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    document.getElementById('species').onchange = renderForecast;
+    document.getElementById('day').onchange = renderForecast;
+    renderForecast();
+  </script>
+</body>
+</html>
