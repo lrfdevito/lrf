@@ -1,21 +1,30 @@
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="el">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LRF by De Vito - Fishing Forecast Map</title>
-  <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LRF Prediction Map</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <header>
-    <h1>LRF by De Vito</h1>
-    <p>Πρόγνωση ψαρέματος - Σαργός, Μελανούρι, Λούτσος</p>
+    <h1>LRF Prediction - Τήνος</h1>
+    <nav>
+      <select id="fishSelector">
+        <option value="sargos">Σαργός</option>
+        <option value="melanouri">Μελανούρι</option>
+        <option value="loutso">Λούτσος</option>
+      </select>
+    </nav>
   </header>
-  <div id="map"></div>
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script src="https://unpkg.com/@turf/turf/turf.min.js"></script>
-  <script src="main.js"></script>
+  <main>
+    <div id="map"></div>
+    <div id="infoPanel"></div>
+  </main>
+  <footer>
+    <p>LRF by De Vito</p>
+  </footer>
+  <script src="script.js"></script>
 </body>
 </html>
